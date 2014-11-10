@@ -55,12 +55,12 @@ defaults =
     'c3.8xlarge': 16
   role: default_role
 
-if !host
-  robot.logger.warning('Missing HUBOT_PUDDING_HOST')
-if !token
-  robot.logger.warning('Missing HUBOT_PUDDING_AUTH_TOKEN')
-
 module.exports = (robot) ->
+  if !host
+    robot.logger.warning('Missing HUBOT_PUDDING_HOST')
+  if !token
+    robot.logger.warning('Missing HUBOT_PUDDING_AUTH_TOKEN')
+
   whitelist_respond robot, /who can do stuff with instances/i, (_, msg) ->
     msg.send "The whitelisted channels are: *#{whitelisted_channels.join("*, *")}*"
 
