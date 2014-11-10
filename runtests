@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -o errexit
+
+export PATH="$(dirname ${BASH_SOURCE[0]})/node_modules/.bin:$PATH"
+
+COFFEE_FILES=$(find scripts -type f -name '*.coffee')
+
+coffeelint $COFFEE_FILES
+
+for f in $COFFEE_FILES ; do
+  cmd="coffee -c -p $f"
+  echo -en "$cmd"
+  $cmd >/dev/null
+  echo " # √"
+done

@@ -1,0 +1,30 @@
+{
+  "name": "hubot-pudding",
+  "version": "0.1.0",
+  "description": "Hubot script for interacting with a pudding server",
+  "main": "index.js",
+  "scripts": {
+    "test": "./runtests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/travis-ci/hubot-pudding.git"
+  },
+  "keywords": [
+    "hubot",
+    "hubot-scripts"
+  ],
+  "author": "Travis CI <contact+hubot-pudding@travis-ci.org>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/travis-ci/hubot-pudding/issues"
+  },
+  "homepage": "https://github.com/travis-ci/hubot-pudding",
+  "dependencies": {
+    "sprintf": "latest"
+  },
+  "devDependencies": {
+    "coffee-script": "latest",
+    "coffeelint": "latest"
+  }
+}
