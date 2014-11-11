@@ -13,7 +13,7 @@
 # Commands:
 #   hubot start instance in org staging - Start an instance in the org site staging env with defaults
 #   hubot start instance in org staging with instance_type=c3.4xlarge - Start an instance in the org site staging env with with an override for instance_type
-#   hubot start instance in org staging with count=1 instance_type=c3.8xlarge queue=docker - Start an instance running two containers in the org site staging environment with overrides for count (concurrency), instance_type, and queue
+#   hubot start instance in org staging with count=1 instance_type=c3.8xlarge queue=docker role=worker - Start an instance running two containers in the org site staging environment with overrides for count (concurrency), instance_type, queue, and role
 #   hubot list instances in org staging - List instances in a specific site->env
 #   hubot list instances in org staging order by launch_time - List instances in a specific site->env ordered by an instance attribute
 #   hubot list all instances - List instances in all sites and envs
@@ -197,6 +197,7 @@ start_instance = (robot, host, token, cfg, cb) ->
     instance_builds:
       site: cfg.site
       env: cfg.env
+      role: cfg.opts.role
       ami: cfg.opts.ami || ''
       instance_type: cfg.opts.instance_type
       count: parseInt(cfg.opts.count)
