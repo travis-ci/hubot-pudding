@@ -133,7 +133,7 @@ build_instance_cfg = (site, env, opts) ->
   if given_opts.instance_type and not given_opts.count
     cfg.opts.count = defaults.counts[cfg.opts.instance_type]
 
-  cfg.inspected_opts = util.inspect(cfg.opts)
+  cfg.inspected_opts = util.inspect(cfg.opts).replace(/\n/g, ' ')
   cfg
 
 get_site_default = (key, site, env) ->
