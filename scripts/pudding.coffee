@@ -23,6 +23,9 @@
 #   hubot what are the instance defaults - Show the default values for each site->env combination
 #   hubot terminate instance i-abcd1234 - Terminate a instance by instance id
 #   hubot who can do stuff with instances - Show the whitelisted channels with access to instance actions
+#   hubot list images - List all images
+#   hubot list images for worker - List all images for role worker
+#   hubot list active images - Lits all active images
 
 util = require 'util'
 {sprintf} = require 'sprintf'
@@ -99,6 +102,15 @@ module.exports = (robot) ->
 
   whitelist_respond robot, /list instances [io]n ([a-z]+) ([a-z]+) order by (.+)/i, (msg) ->
     list_instances robot, host, msg.match[1], msg.match[2], default_role, token, send_instances_list_cb(msg, msg.match[3])
+
+  whitelist_respond robot, /list images/i, (msg) ->
+    list_images robot, host, '', '', token, send_images_list_cb(msg)
+
+  whitelist_respond robot, /list images for ([a-z]+)$/i, (msg) ->
+    list_images robot, host, msg.match[1], '', token, send_images_list_cb(msg)
+
+  whitelist_respond robot, /list active images/i, (msg) ->
+    list_images robot, host, '', 'true', token, send_images_list_cb(msg)
 
 whitelist_respond = (robot, pattern, cb) ->
   robot.respond pattern, (msg) ->
@@ -237,3 +249,49 @@ terminate_instance = (robot, host, token, instance_id, channel, cb) ->
         return
 
       cb null
+
+
+format_image = (image) ->
+  if image.active
+    sprintf("%(image_id)s:  %(role)s (ACTIVE)\n", image)
+  else
+    sprintf("%(image_id)s:  %(role)s\n", image)
+
+send_images_list_cb = (msg) ->
+  return (err, images) ->
+    if err
+      msg.send err
+      return
+
+    images.sort (a, b) ->
+      if a.role > b.role
+        return 1
+      return -1
+
+    response = '```\n'
+
+    images.map (img) ->
+      response += format_image(img)
+
+    msg.send response + '```'
+
+list_images = (robot, host, role, active, token, cb) ->
+  robot.http("#{host}/images?role=#{role}&active=#{active}")
+    .header('Authorization', "token #{token}")
+    .get() (err, res, body) ->
+      if err
+        cb "Oh No!  Failed to get the current images"
+        return
+
+      if res.statusCode isnt 200
+        cb "Oh No!  The server responded *#{res.statusCode}*"
+        return
+
+      body_json = null
+      try
+        body_json = JSON.parse(body)
+      catch error
+        cb "Oh No!  Couldn't parse the JSON response! *#{error}* _body=#{body}_"
+        return
+
+      cb null, body_json['images']
