@@ -103,7 +103,7 @@ module.exports = (robot) ->
   whitelist_respond robot, /list instances [io]n ([a-z]+) ([a-z]+) order by (.+)/i, (msg) ->
     list_instances robot, host, msg.match[1], msg.match[2], default_role, token, send_instances_list_cb(msg, msg.match[3])
 
-  whitelist_respond robot, /list images/i, (msg) ->
+  whitelist_respond robot, /list images$/i, (msg) ->
     list_images robot, host, '', '', token, send_images_list_cb(msg)
 
   whitelist_respond robot, /list images for ([a-z]+)$/i, (msg) ->
@@ -249,7 +249,6 @@ terminate_instance = (robot, host, token, instance_id, channel, cb) ->
         return
 
       cb null
-
 
 format_image = (image) ->
   if image.active
