@@ -100,16 +100,16 @@ module.exports = (robot) ->
   whitelist_respond robot, /list instances [io]n ([a-z]+) ([a-z]+)$/i, (robot, msg) ->
     list_instances robot, host, msg.match[1], msg.match[2], default_role, token, send_instances_list_cb(msg)
 
-  whitelist_respond robot, /list instances [io]n ([a-z]+) ([a-z]+) order by (.+)/i, (msg) ->
+  whitelist_respond robot, /list instances [io]n ([a-z]+) ([a-z]+) order by (.+)/i, (robot, msg) ->
     list_instances robot, host, msg.match[1], msg.match[2], default_role, token, send_instances_list_cb(msg, msg.match[3])
 
-  whitelist_respond robot, /list images$/i, (msg) ->
+  whitelist_respond robot, /list images$/i, (robot, msg) ->
     list_images robot, host, '', '', token, send_images_list_cb(msg)
 
-  whitelist_respond robot, /list images for ([a-z]+)$/i, (msg) ->
+  whitelist_respond robot, /list images for ([a-z]+)$/i, (robot, msg) ->
     list_images robot, host, msg.match[1], '', token, send_images_list_cb(msg)
 
-  whitelist_respond robot, /list active images/i, (msg) ->
+  whitelist_respond robot, /list active images/i, (robot, msg) ->
     list_images robot, host, '', 'true', token, send_images_list_cb(msg)
 
 whitelist_respond = (robot, pattern, cb) ->
