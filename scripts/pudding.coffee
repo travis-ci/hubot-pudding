@@ -252,9 +252,9 @@ terminate_instance = (robot, host, token, instance_id, channel, cb) ->
 
 format_image = (image) ->
   if image.active
-    sprintf("%(image_id)s:  %(role)s (ACTIVE)\n", image)
+    sprintf("%(image_id)s: role=%(role)s\t%(name)s (ACTIVE)\n", image)
   else
-    sprintf("%(image_id)s:  %(role)s\n", image)
+    sprintf("%(image_id)s: role=%(role)s\t%(name)s\n", image)
 
 send_images_list_cb = (msg) ->
   return (err, images) ->
