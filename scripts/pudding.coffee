@@ -9,11 +9,15 @@
 #   HUBOT_PUDDING_CHANNEL_WHITELIST
 #   HUBOT_PUDDING_AUTH_TOKEN
 #   HUBOT_PUDDING_DEFAULT_ROLE
+#   HUBOT_PUDDING_ORG_STAGING_DEFAULT_INSTANCE_TYPE
+#   HUBOT_PUDDING_ORG_PROD_DEFAULT_INSTANCE_TYPE
+#   HUBOT_PUDDING_COM_STAGING_DEFAULT_INSTANCE_TYPE
+#   HUBOT_PUDDING_COM_PROD_DEFAULT_INSTANCE_TYPE
 #
 # Commands:
 #   hubot start instance in org staging - Start an instance in the org site staging env with defaults
 #   hubot start instance in org staging with instance_type=c3.4xlarge - Start an instance in the org site staging env with with an override for instance_type
-#   hubot start instance in org staging with count=1 instance_type=c3.8xlarge queue=docker role=worker - Start an instance running two containers in the org site staging environment with overrides for count (concurrency), instance_type, queue, and role
+#   hubot start instance in org staging with count=1 instance_type=c3.4xlarge queue=docker role=worker - Start an instance running two containers in the org site staging environment with overrides for count (concurrency), instance_type, queue, and role
 #   hubot list instances in org staging - List instances in a specific site->env
 #   hubot list instances in org staging order by launch_time - List instances in a specific site->env ordered by an instance attribute
 #   hubot list all instances - List instances in all sites and envs
@@ -40,17 +44,17 @@ default_role = process.env.HUBOT_PUDDING_DEFAULT_ROLE || ''
 defaults =
   org:
     staging:
-      instance_type: 'c3.2xlarge'
+      instance_type: process.env.HUBOT_PUDDING_ORG_STAGING_DEFAULT_INSTANCE_TYPE || 'c3.2xlarge'
       queue: 'docker'
     prod:
-      instance_type: 'c3.8xlarge'
+      instance_type: process.env.HUBOT_PUDDING_ORG_PROD_DEFAULT_INSTANCE_TYPE ||'c3.4xlarge'
       queue: 'docker'
   com:
     staging:
-      instance_type: 'c3.2xlarge'
+      instance_type: process.env.HUBOT_PUDDING_COM_STAGING_DEFAULT_INSTANCE_TYPE || 'c3.2xlarge'
       queue: 'docker'
     prod:
-      instance_type: 'c3.8xlarge'
+      instance_type: process.env.HUBOT_PUDDING_COM_PROD_DEFAULT_INSTANCE_TYPE ||'c3.4xlarge'
       queue: 'docker'
   counts:
     'c3.2xlarge': 4
