@@ -46,16 +46,24 @@ defaults =
     staging:
       instance_type: process.env.HUBOT_PUDDING_ORG_STAGING_DEFAULT_INSTANCE_TYPE || 'c3.2xlarge'
       queue: 'docker'
+      subnet_id: process.env.HUBOT_PUDDING_ORG_STAGING_DEFAULT_SUBNET_ID
+      security_group_id: process.env.HUBOT_PUDDING_ORG_STAGING_DEFAULT_SECURITY_GROUP_ID
     prod:
       instance_type: process.env.HUBOT_PUDDING_ORG_PROD_DEFAULT_INSTANCE_TYPE ||'c3.4xlarge'
       queue: 'docker'
+      subnet_id: process.env.HUBOT_PUDDING_ORG_PROD_DEFAULT_SUBNET_ID
+      security_group_id: process.env.HUBOT_PUDDING_ORG_PROD_DEFAULT_SECURITY_GROUP_ID
   com:
     staging:
       instance_type: process.env.HUBOT_PUDDING_COM_STAGING_DEFAULT_INSTANCE_TYPE || 'c3.2xlarge'
       queue: 'docker'
+      subnet_id: process.env.HUBOT_PUDDING_COM_STAGING_DEFAULT_SUBNET_ID
+      security_group_id: process.env.HUBOT_PUDDING_COM_STAGING_DEFAULT_SECURITY_GROUP_ID
     prod:
       instance_type: process.env.HUBOT_PUDDING_COM_PROD_DEFAULT_INSTANCE_TYPE ||'c3.4xlarge'
       queue: 'docker'
+      subnet_id: process.env.HUBOT_PUDDING_COM_PROD_DEFAULT_SUBNET_ID
+      security_group_id: process.env.HUBOT_PUDDING_COM_PROD_DEFAULT_SECURITY_GROUP_ID
   counts:
     'c3.2xlarge': 4
     'c3.4xlarge': 8
@@ -134,6 +142,8 @@ build_instance_cfg = (site, env, opts) ->
       queue: get_site_default('queue', site, env)
       count: defaults.counts[get_site_default('instance_type', site, env)]
       role: default_role
+      subnet_id: get_site_default('subnet_id', site, env)
+      security_group_id: get_site_default('security_group_id', site, env)
     site: site
     env: env
 
@@ -218,6 +228,8 @@ start_instance = (robot, host, token, cfg, cb) ->
       instance_type: cfg.opts.instance_type
       count: parseInt(cfg.opts.count)
       queue: cfg.opts.queue
+      subnet_id: cfg.opts.subnet_id
+      security_group_id: cfg.opts.security_group_id
   })
   robot.http("#{host}/instance-builds?slack-channel=#{cfg.channel}")
     .header('Authorization', "token #{token}")
