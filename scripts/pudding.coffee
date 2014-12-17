@@ -180,7 +180,8 @@ send_instances_list_cb = (msg, orderby) ->
     response = '```\n'
 
     instances.map (inst) ->
-      inst.ip ?= '_'
+      if not inst.ip or inst.ip is ''
+        inst.ip = '_'
       response += format_instance(inst)
 
     msg.send response + '```'
