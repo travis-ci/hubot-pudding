@@ -21,7 +21,8 @@
   },
   "homepage": "https://github.com/travis-ci/hubot-pudding",
   "dependencies": {
-    "sprintf": "latest"
+    "sprintf": "latest",
+    "hubot-slack-attachment": "latest"
   },
   "devDependencies": {
     "coffee-script": "latest",

@@ -3,6 +3,7 @@
 #
 # Dependencies:
 #   sprintf
+#   hubot-slack-attachment
 #
 # Configuration:
 #   HUBOT_PUDDING_HOST
@@ -194,8 +195,7 @@ send_instances_summary_cb = (robot, msg) ->
         color: '#77cc77'
         fields: fields
 
-    robot.logger.info "Sending slack attachment of instance summary"
-    robot.emit 'slack-attachment', payload
+    robot.emit 'slack.attachment', payload
 
 get_instance_total_in_site_env = (site, env, instances) ->
   total = 0
