@@ -186,10 +186,11 @@ send_instances_summary_cb = (robot, msg) ->
           short: true
 
     payload =
-      message: 'Pudding Instance Summary'
+      message: msg.message
       content:
         text: "All #{default_role} instances"
         fallback: 'Instances'
+        pretext: ''
         color: '#77cc77'
         fields: fields
 
