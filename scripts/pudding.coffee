@@ -185,6 +185,7 @@ send_instances_summary_cb = (robot, msg) ->
           title: "#{site} #{env}"
           value: format_instance_totals_in_site_env(site, env, instances)
           short: true
+          mrkdwn_in: ['title', 'value', 'text']
 
     payload =
       message: msg.message
@@ -194,10 +195,8 @@ send_instances_summary_cb = (robot, msg) ->
         pretext: "All _#{default_role}_ instances"
         color: '#77cc77'
         fields: fields
-        mrkdwn_in: ['fields', 'pretext', 'title']
+        mrkdwn_in: ['fallback', 'pretext']
       username: robot.name
-      mrkdwn_in: ['fields', 'pretext', 'title']
-      mrkdwn: true
 
     robot.emit 'slack.attachment', payload
 
