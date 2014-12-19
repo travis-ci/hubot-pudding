@@ -192,7 +192,7 @@ send_instances_summary_cb = (robot, msg) ->
       content:
         text: ''
         fallback: 'Instances'
-        pretext: "All _#{default_role}_ instances"
+        pretext: "All #{default_role} instances"
         color: '#77cc77'
         fields: fields
         mrkdwn_in: ['fallback', 'pretext']
@@ -205,7 +205,7 @@ format_instance_totals_in_site_env = (site, env, instances) ->
   resp = ''
   Object.keys(totals).map (instance_type) ->
     capacity = (defaults.counts[instance_type] || 0) * totals[instance_type]
-    resp += "#{instance_type}: *#{totals[instance_type]}* (capacity *#{capacity}*)"
+    resp += "#{instance_type}: #{totals[instance_type]} (capacity #{capacity})"
   resp
 
 get_instance_totals_in_site_env = (site, env, instances) ->
