@@ -201,7 +201,8 @@ format_instance_totals_in_site_env = (site, env, instances) ->
   totals = get_instance_totals_in_site_env(site, env, instances)
   resp = ''
   Object.keys(totals).map (instance_type) ->
-    resp += "#{instance_type}: #{totals[instance_type]}\n"
+    capacity = (defaults.counts[instance_type] || 0) * totals[instance_type]
+    resp += "#{instance_type}: #{totals[instance_type]} (capacity #{capacity})"
   resp
 
 get_instance_totals_in_site_env = (site, env, instances) ->
