@@ -43,6 +43,8 @@ whitelisted_channels = (
 default_role = process.env.HUBOT_PUDDING_DEFAULT_ROLE || ''
 
 defaults =
+  sites: ['org', 'com']
+  envs: ['prod', 'staging']
   org:
     staging:
       instance_type: process.env.HUBOT_PUDDING_ORG_STAGING_DEFAULT_INSTANCE_TYPE || 'c3.2xlarge'
@@ -82,8 +84,8 @@ module.exports = (robot) ->
 
   whitelist_respond robot, /where do instances live/i, (_, msg) ->
     response = "instances live in"
-    Object.keys(defaults).map (site) ->
-      Object.keys(defaults[site]).map (env) ->
+    defaults.sites.map (site) ->
+      defaults.envs.map (env) ->
         response += " *#{site} #{env}*,"
 
     msg.send response.replace(/, ([^,]+),$/, ', and $1')
@@ -176,8 +178,8 @@ send_instances_summary_cb = (msg) ->
       return
 
     fields = []
-    Object.keys(defaults).map (site) ->
-      Object.keys(defaults[site]).map (env) ->
+    defaults.sites.map (site) ->
+      defaults.envs.map (env) ->
         fields.push
           title: "Site: #{site}, Env: #{env}"
           value: "Total: #{get_instance_total_in_site_env(site, env, instances)}"
