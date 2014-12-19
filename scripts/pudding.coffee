@@ -196,6 +196,8 @@ send_instances_summary_cb = (robot, msg) ->
         fields: fields
         mrkdwn_in: ['fields', 'pretext', 'title']
       username: robot.name
+      mrkdwn_in: ['fields', 'pretext', 'title']
+      mrkdwn: true
 
     robot.emit 'slack.attachment', payload
 
