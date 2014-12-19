@@ -194,6 +194,7 @@ send_instances_summary_cb = (robot, msg) ->
         pretext: "All #{default_role} instances"
         color: '#77cc77'
         fields: fields
+      username: robot.name
 
     robot.emit 'slack.attachment', payload
 
@@ -202,7 +203,7 @@ format_instance_totals_in_site_env = (site, env, instances) ->
   resp = ''
   Object.keys(totals).map (instance_type) ->
     capacity = (defaults.counts[instance_type] || 0) * totals[instance_type]
-    resp += "#{instance_type}: #{totals[instance_type]} (capacity #{capacity})"
+    resp += "#{instance_type}: *#{totals[instance_type]}* (capacity *#{capacity}*)"
   resp
 
 get_instance_totals_in_site_env = (site, env, instances) ->
