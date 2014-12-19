@@ -98,7 +98,7 @@ module.exports = (robot) ->
   whitelist_respond robot, /start instance [io]n ([a-z]+) ([a-z]+) with (.+)/i, start_instance_response()
 
   whitelist_respond robot, /sum(marize)? instances/i, (robot, msg) ->
-    list_instances robot, host, '', '', default_role, token, send_instances_summary_cb(msg)
+    list_instances robot, host, '', '', default_role, token, send_instances_summary_cb(robot, msg)
 
   whitelist_respond robot, /terminate instance (i-[a-z0-9]{8})/i, (robot, msg) ->
     instance_id = msg.match[1]
@@ -171,7 +171,7 @@ build_instance_cfg = (site, env, opts) ->
 get_site_default = (key, site, env) ->
   ((defaults[site] || {})[env] || {})[key]
 
-send_instances_summary_cb = (msg) ->
+send_instances_summary_cb = (robot, msg) ->
   return (err, instances) ->
     if err
       msg.send err
@@ -193,7 +193,8 @@ send_instances_summary_cb = (msg) ->
         color: '#77cc77'
         fields: fields
 
-    msg.robot.emit 'slack-attachment', payload
+    robot.logger.info "Sending slack attachment of instance summary"
+    robot.emit 'slack-attachment', payload
 
 get_instance_total_in_site_env = (site, env, instances) ->
   total = 0
