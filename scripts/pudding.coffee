@@ -191,9 +191,10 @@ send_instances_summary_cb = (robot, msg) ->
       content:
         text: ''
         fallback: 'Instances'
-        pretext: "All #{default_role} instances"
+        pretext: "All _#{default_role}_ instances"
         color: '#77cc77'
         fields: fields
+        mrkdwn_in: ['fields', 'pretext', 'title']
       username: robot.name
 
     robot.emit 'slack.attachment', payload
