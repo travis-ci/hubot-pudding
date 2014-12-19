@@ -182,27 +182,36 @@ send_instances_summary_cb = (robot, msg) ->
     defaults.sites.map (site) ->
       defaults.envs.map (env) ->
         fields.push
-          title: "Site: #{site}, Env: #{env}"
-          value: "Total: #{get_instance_total_in_site_env(site, env, instances)}"
+          title: "#{site} #{env}"
+          value: format_instance_totals_in_site_env(site, env, instances)
           short: true
 
     payload =
       message: msg.message
       content:
-        text: "All #{default_role} instances"
+        text: ''
         fallback: 'Instances'
-        pretext: ''
+        pretext: "All #{default_role} instances"
         color: '#77cc77'
         fields: fields
 
     robot.emit 'slack.attachment', payload
 
-get_instance_total_in_site_env = (site, env, instances) ->
-  total = 0
+format_instance_totals_in_site_env = (site, env, instances) ->
+  totals = get_instance_totals_in_site_env(site, env, instances)
+  resp = ''
+  Object.keys(totals).map (instance_type) ->
+    resp += "#{instance_type}: #{totals[instance_type]}\n"
+  resp
+
+get_instance_totals_in_site_env = (site, env, instances) ->
+  totals = {}
   instances.map (inst) ->
     if inst.site == site and inst.env == env
-      total++
-  total
+      totals[inst.instance_type] ||= 0
+      totals[inst.instance_type] = totals[inst.instance_type] + 1
+
+  totals
 
 send_instances_list_cb = (msg, orderby) ->
   return (err, instances) ->
