@@ -225,7 +225,7 @@ format_instance_totals_in_pool = (site, env, queue, instances) ->
   Object.keys(totals).map (instance_type) ->
     if totals[instance_type] == 0
       return
-    capacity += (defaults.counts[instance_type] || 0) * totals[instance_type]
+    capacity += ((defaults.counts[instance_type] || 0) * totals[instance_type])
     resp += "#{instance_type}=*#{totals[instance_type]}* "
   if capacity > 0
     resp += "(capacity *#{capacity}*)"
