@@ -6,14 +6,27 @@
 #   hubot-slack-attachment
 #
 # Configuration:
-#   HUBOT_PUDDING_HOST
-#   HUBOT_PUDDING_CHANNEL_WHITELIST
-#   HUBOT_PUDDING_AUTH_TOKEN
+#   HUBOT_PUDDING_HOST - full http(s) host URL bit for pudding server
+#   HUBOT_PUDDING_AUTH_TOKEN - auth token for pudding server
+#   HUBOT_PUDDING_CHANNEL_WHITELIST - allowed channels
+#   HUBOT_PUDDING_SITES - known sites (default 'org', 'com')
+#   HUBOT_PUDDING_ENVS - known environments (default 'prod', 'staging')
 #   HUBOT_PUDDING_DEFAULT_ROLE
-#   HUBOT_PUDDING_ORG_STAGING_DEFAULT_INSTANCE_TYPE
-#   HUBOT_PUDDING_ORG_PROD_DEFAULT_INSTANCE_TYPE
-#   HUBOT_PUDDING_COM_STAGING_DEFAULT_INSTANCE_TYPE
+#   HUBOT_PUDDING_C32XLARGE_DEFAULT_COUNT - concurrency for a c3.2xlarge (default 4)
+#   HUBOT_PUDDING_C34XLARGE_DEFAULT_COUNT - concurrency for a c3.4xlarge (default 8)
+#   HUBOT_PUDDING_C38XLARGE_DEFAULT_COUNT - concurrency for a c3.8xlarge (default 16)
 #   HUBOT_PUDDING_COM_PROD_DEFAULT_INSTANCE_TYPE
+#   HUBOT_PUDDING_COM_PROD_DEFAULT_SECURITY_GROUP_ID
+#   HUBOT_PUDDING_COM_PROD_DEFAULT_SUBNET_ID
+#   HUBOT_PUDDING_COM_STAGING_DEFAULT_INSTANCE_TYPE
+#   HUBOT_PUDDING_COM_STAGING_DEFAULT_SECURITY_GROUP_ID
+#   HUBOT_PUDDING_COM_STAGING_DEFAULT_SUBNET_ID
+#   HUBOT_PUDDING_ORG_PROD_DEFAULT_INSTANCE_TYPE
+#   HUBOT_PUDDING_ORG_PROD_DEFAULT_SECURITY_GROUP_ID
+#   HUBOT_PUDDING_ORG_PROD_DEFAULT_SUBNET_ID
+#   HUBOT_PUDDING_ORG_STAGING_DEFAULT_INSTANCE_TYPE
+#   HUBOT_PUDDING_ORG_STAGING_DEFAULT_SECURITY_GROUP_ID
+#   HUBOT_PUDDING_ORG_STAGING_DEFAULT_SUBNET_ID
 #
 # Commands:
 #   hubot start instance in org staging - Start an instance in the org site staging env with defaults
@@ -36,42 +49,44 @@
 util = require 'util'
 {sprintf} = require 'sprintf'
 
+split_strip = (s) ->
+  s.split(/\s*,\s*/).sort()
+
 host = process.env.HUBOT_PUDDING_HOST
 token = process.env.HUBOT_PUDDING_AUTH_TOKEN
-whitelisted_channels = (
-  process.env.HUBOT_PUDDING_CHANNEL_WHITELIST || ''
-).split(/\s*,\s*/).sort()
+whitelisted_channels = split_strip(process.env.HUBOT_PUDDING_CHANNEL_WHITELIST || '')
 default_role = process.env.HUBOT_PUDDING_DEFAULT_ROLE || ''
 
 defaults =
-  sites: ['org', 'com']
-  envs: ['prod', 'staging']
+  sites: split_strip(process.env.HUBOT_PUDDING_SITES || 'org, com')
+  envs: split_strip(process.env.HUBOT_PUDDING_ENVS || 'prod, staging')
+  queues: split_strip(process.env.HUBOT_PUDDING_QUEUES || 'docker')
   org:
     staging:
       instance_type: process.env.HUBOT_PUDDING_ORG_STAGING_DEFAULT_INSTANCE_TYPE || 'c3.2xlarge'
-      queue: 'docker'
+      queue: process.env.HUBOT_PUDDING_ORG_STAGING_DEFAULT_QUEUE || 'docker'
       subnet_id: process.env.HUBOT_PUDDING_ORG_STAGING_DEFAULT_SUBNET_ID
       security_group_id: process.env.HUBOT_PUDDING_ORG_STAGING_DEFAULT_SECURITY_GROUP_ID
     prod:
       instance_type: process.env.HUBOT_PUDDING_ORG_PROD_DEFAULT_INSTANCE_TYPE ||'c3.4xlarge'
-      queue: 'docker'
+      queue: process.env.HUBOT_PUDDING_ORG_PROD_DEFAULT_QUEUE || 'docker'
       subnet_id: process.env.HUBOT_PUDDING_ORG_PROD_DEFAULT_SUBNET_ID
       security_group_id: process.env.HUBOT_PUDDING_ORG_PROD_DEFAULT_SECURITY_GROUP_ID
   com:
     staging:
       instance_type: process.env.HUBOT_PUDDING_COM_STAGING_DEFAULT_INSTANCE_TYPE || 'c3.2xlarge'
-      queue: 'docker'
+      queue: process.env.HUBOT_PUDDING_COM_STAGING_DEFAULT_QUEUE || 'docker'
       subnet_id: process.env.HUBOT_PUDDING_COM_STAGING_DEFAULT_SUBNET_ID
       security_group_id: process.env.HUBOT_PUDDING_COM_STAGING_DEFAULT_SECURITY_GROUP_ID
     prod:
       instance_type: process.env.HUBOT_PUDDING_COM_PROD_DEFAULT_INSTANCE_TYPE ||'c3.4xlarge'
-      queue: 'docker'
+      queue: process.env.HUBOT_PUDDING_COM_PROD_DEFAULT_QUEUE || 'docker'
       subnet_id: process.env.HUBOT_PUDDING_COM_PROD_DEFAULT_SUBNET_ID
       security_group_id: process.env.HUBOT_PUDDING_COM_PROD_DEFAULT_SECURITY_GROUP_ID
   counts:
-    'c3.2xlarge': 4
-    'c3.4xlarge': 8
-    'c3.8xlarge': 16
+    'c3.2xlarge': +(process.env.HUBOT_PUDDING_C32XLARGE_DEFAULT_COUNT || 4)
+    'c3.4xlarge': +(process.env.HUBOT_PUDDING_C34XLARGE_DEFAULT_COUNT || 8)
+    'c3.8xlarge': +(process.env.HUBOT_PUDDING_C38XLARGE_DEFAULT_COUNT || 16)
   role: default_role
 
 module.exports = (robot) ->
@@ -181,11 +196,14 @@ send_instances_summary_cb = (robot, msg) ->
     fields = []
     defaults.sites.map (site) ->
       defaults.envs.map (env) ->
-        fields.push
-          title: "#{site} #{env}"
-          value: format_instance_totals_in_site_env(site, env, instances)
-          short: true
-          mrkdwn_in: ['title', 'value', 'text']
+        defaults.queues.map (queue) ->
+          value = format_instance_totals_in_pool(site, env, queue, instances)
+          if value is ''
+            return
+          fields.push
+            text: "#{site} #{env} #{queue}: #{value}"
+            short: false
+            mrkdwn_in: ['text']
 
     payload =
       message: msg.message
@@ -200,21 +218,25 @@ send_instances_summary_cb = (robot, msg) ->
 
     robot.emit 'slack.attachment', payload
 
-format_instance_totals_in_site_env = (site, env, instances) ->
-  totals = get_instance_totals_in_site_env(site, env, instances)
+format_instance_totals_in_pool = (site, env, queue, instances) ->
+  totals = get_instance_totals_in_pool(site, env, queue, instances)
   resp = ''
+  capacity = 0
   Object.keys(totals).map (instance_type) ->
-    capacity = (defaults.counts[instance_type] || 0) * totals[instance_type]
-    resp += "#{instance_type}: #{totals[instance_type]} (capacity #{capacity})"
+    if totals[instance_type] == 0
+      return
+    capacity += (defaults.counts[instance_type] || 0) * totals[instance_type]
+    resp += "#{instance_type}=*#{totals[instance_type]}* "
+  if capacity > 0
+    resp += "(capacity *#{capacity}*)"
   resp
 
-get_instance_totals_in_site_env = (site, env, instances) ->
+get_instance_totals_in_pool = (site, env, queue, instances) ->
   totals = {}
   instances.map (inst) ->
-    if inst.site == site and inst.env == env
+    if inst.site == site and inst.env == env and inst.queue == queue
       totals[inst.instance_type] ||= 0
       totals[inst.instance_type] = totals[inst.instance_type] + 1
-
   totals
 
 send_instances_list_cb = (msg, orderby) ->
