@@ -17,9 +17,12 @@
 #
 # Commands:
 #   hubot start instance in org staging - Start an instance in the org site staging env with defaults
+#   hubot start inst in org staging - Start an instance in the org site staging env with defaults
+#   hubot start 3 inst in org staging - Start 3 instances in the org site staging env with defaults
 #   hubot start instance in org staging with instance_type=c3.4xlarge - Start an instance in the org site staging env with with an override for instance_type
 #   hubot start instance in org staging with count=1 instance_type=c3.4xlarge queue=docker role=worker - Start an instance running two containers in the org site staging environment with overrides for count (concurrency), instance_type, queue, and role
 #   hubot list instances in org staging - List instances in a specific site->env
+#   hubot list inst in org staging - List instances in a specific site->env
 #   hubot list instances in org staging order by launch_time - List instances in a specific site->env ordered by an instance attribute
 #   hubot list all instances - List instances in all sites and envs
 #   hubot list instances - List instances in all sites and envs
@@ -28,6 +31,7 @@
 #   hubot where do instances live - List the site->env combinations where instances may be started
 #   hubot what are the instance defaults - Show the default values for each site->env combination
 #   hubot terminate instance i-abcd1234 - Terminate a instance by instance id
+#   hubot term inst i-abcd1234, efgh5678 - Terminate instances by comma-delimited instance id, with or without i- prefix
 #   hubot who can do stuff with instances - Show the whitelisted channels with access to instance actions
 #   hubot list images - List all images
 #   hubot list images for worker - List all images for role worker
@@ -94,41 +98,55 @@ module.exports = (robot) ->
   whitelist_respond robot, /what are the instance defaults/i, (_, msg) ->
     msg.send "```\n#{util.inspect(defaults)}\n```"
 
-  whitelist_respond robot, /start instance [io]n ([a-z]+) ([a-z]+)$/i, start_instance_response()
+  whitelist_respond robot, /start inst(:?ance)? [io]n ([a-z]+) ([a-z]+)$/i, start_instance_response()
 
-  whitelist_respond robot, /start instance [io]n ([a-z]+) ([a-z]+) with (.+)/i, start_instance_response()
+  whitelist_respond robot, /start ([0-9]+) inst(:?ances)? [io]n ([a-z]+) ([a-z]+)$/i, (robot, msg) ->
+    n = +msg.match[1]
+    msg.match = msg.match[1..]
+    for i in [1..n] by 1
+      start_instance_response()(robot, msg)
 
-  whitelist_respond robot, /sum(marize)? instances/i, (robot, msg) ->
+  whitelist_respond robot, /start inst(:?ance)? [io]n ([a-z]+) ([a-z]+) with (.+)/i, start_instance_response()
+
+  whitelist_respond robot, /start ([0-9]+) inst(:?ance)? [io]n ([a-z]+) ([a-z]+) with (.+)/i, (robot, msg) ->
+    n = +msg.match[1]
+    msg.match = msg.match[1..]
+    for i in [1..n] by 1
+      start_instance_response()(robot, msg)
+
+  whitelist_respond robot, /sum(:?marize)? inst(:?ances)?/i, (robot, msg) ->
     list_instances robot, host, '', '', default_role, token, send_instances_summary_cb(robot, msg)
 
-  whitelist_respond robot, /terminate instance (i-[a-z0-9]{8})/i, (robot, msg) ->
-    instance_id = msg.match[1]
-    channel = msg.envelope.room
-    terminate_instance robot, host, token, instance_id, channel, (err) ->
-      if err
-        msg.send err
-        return
-      msg.send "Sent termination request for *#{instance_id}*"
+  whitelist_respond robot, /term(:?inate)? inst(:?ance)? (.+)/i, (robot, msg) ->
+    msg.match[3].split(/\s*,\s*/).map (instance_id) ->
+      unless instance_id.match(/^i-/)
+        instance_id = "i-#{instance_id}"
+      channel = msg.envelope.room
+      terminate_instance robot, host, token, instance_id, channel, (err) ->
+        if err
+          msg.send err
+          return
+        msg.send "Sent termination request for *#{instance_id}*"
 
-  whitelist_respond robot, /list (all )?instances$/i, (robot, msg) ->
+  whitelist_respond robot, /list (:?all )?inst(:?ances)?$/i, (robot, msg) ->
     list_instances robot, host, '', '', default_role, token, send_instances_list_cb(msg)
 
-  whitelist_respond robot, /list all instances order by (.+)/i, (robot, msg) ->
-    list_instances robot, host, '', '', default_role, token, send_instances_list_cb(msg, msg.match[1])
+  whitelist_respond robot, /list (:?all )?inst(:?ances)? order by (.+)/i, (robot, msg) ->
+    list_instances robot, host, '', '', default_role, token, send_instances_list_cb(msg, msg.match[3])
 
-  whitelist_respond robot, /list instances [io]n ([a-z]+) ([a-z]+)$/i, (robot, msg) ->
-    list_instances robot, host, msg.match[1], msg.match[2], default_role, token, send_instances_list_cb(msg)
+  whitelist_respond robot, /list inst(:?ances)? [io]n ([a-z]+) ([a-z]+)$/i, (robot, msg) ->
+    list_instances robot, host, msg.match[2], msg.match[3], default_role, token, send_instances_list_cb(msg)
 
-  whitelist_respond robot, /list instances [io]n ([a-z]+) ([a-z]+) order by (.+)/i, (robot, msg) ->
-    list_instances robot, host, msg.match[1], msg.match[2], default_role, token, send_instances_list_cb(msg, msg.match[3])
+  whitelist_respond robot, /list inst(:?ances)? [io]n ([a-z]+) ([a-z]+) order by (.+)/i, (robot, msg) ->
+    list_instances robot, host, msg.match[2], msg.match[3], default_role, token, send_instances_list_cb(msg, msg.match[4])
 
-  whitelist_respond robot, /list images$/i, (robot, msg) ->
+  whitelist_respond robot, /list ima?g(:?es)?$/i, (robot, msg) ->
     list_images robot, host, '', '', token, send_images_list_cb(msg)
 
-  whitelist_respond robot, /list images for ([a-z]+)$/i, (robot, msg) ->
-    list_images robot, host, msg.match[1], '', token, send_images_list_cb(msg)
+  whitelist_respond robot, /list ima?g(:?es)? for ([a-z]+)$/i, (robot, msg) ->
+    list_images robot, host, msg.match[2], '', token, send_images_list_cb(msg)
 
-  whitelist_respond robot, /list active images/i, (robot, msg) ->
+  whitelist_respond robot, /list active ima?g(:?es)?/i, (robot, msg) ->
     list_images robot, host, '', 'true', token, send_images_list_cb(msg)
 
 whitelist_respond = (robot, pattern, cb) ->
@@ -261,7 +279,7 @@ list_instances = (robot, host, site, env, role, token, cb) ->
 
 start_instance_response = ->
   return (robot, msg) ->
-    cfg = build_instance_cfg(msg.match[1], msg.match[2], msg.match[3])
+    cfg = build_instance_cfg(msg.match[2], msg.match[3], msg.match[4])
     cfg.channel = msg.envelope.room
     msg.send sprintf("Spinning up instance in site=*%(site)s* " +
                      "env=*%(env)s* with _opts=%(inspected_opts)s_", cfg)
