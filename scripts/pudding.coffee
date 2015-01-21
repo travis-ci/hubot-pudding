@@ -100,7 +100,7 @@ module.exports = (robot) ->
 
   whitelist_respond robot, /start inst(:?ance)? [io]n ([a-z]+) ([a-z]+)$/i, start_instance_response()
 
-  whitelist_respond robot, /start ([0-9]+) inst(:?ances)? [io]n ([a-z]+) ([a-z]+)$/i, (robot, msg) ->
+  whitelist_respond robot, /start ([1-9][0-9]*) inst(:?ances)? [io]n ([a-z]+) ([a-z]+)$/i, (robot, msg) ->
     n = +msg.match[1]
     msg.match = msg.match[1..]
     for i in [1..n] by 1
@@ -108,7 +108,7 @@ module.exports = (robot) ->
 
   whitelist_respond robot, /start inst(:?ance)? [io]n ([a-z]+) ([a-z]+) with (.+)/i, start_instance_response()
 
-  whitelist_respond robot, /start ([0-9]+) inst(:?ance)? [io]n ([a-z]+) ([a-z]+) with (.+)/i, (robot, msg) ->
+  whitelist_respond robot, /start ([1-9][0-9]*) inst(:?ance)? [io]n ([a-z]+) ([a-z]+) with (.+)/i, (robot, msg) ->
     n = +msg.match[1]
     msg.match = msg.match[1..]
     for i in [1..n] by 1
