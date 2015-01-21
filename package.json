@@ -1,6 +1,6 @@
 {
   "name": "hubot-pudding",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Hubot script for interacting with a pudding server",
   "main": "index.js",
   "scripts": {
