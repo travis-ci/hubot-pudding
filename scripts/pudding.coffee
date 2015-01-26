@@ -118,7 +118,9 @@ module.exports = (robot) ->
     list_instances robot, host, '', '', default_role, token, send_instances_summary_cb(robot, msg)
 
   whitelist_respond robot, /term(:?inate)? inst(:?ance)? (.+)/i, (robot, msg) ->
-    msg.match[3].split(/\s*,\s*/).map (instance_id) ->
+    msg.match[3].split(/\s*[,\s]\s*/).map (instance_id) ->
+      if instance_id is ''
+        return
       unless instance_id.match(/^i-/)
         instance_id = "i-#{instance_id}"
       channel = msg.envelope.room
