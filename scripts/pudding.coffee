@@ -104,7 +104,10 @@ module.exports = (robot) ->
     n = +msg.match[1]
     msg.match = msg.match[1..]
     for i in [1..n] by 1
-      start_instance_response()(robot, msg)
+      try
+        start_instance_response()(robot, msg)
+      catch err
+        robot.logger.error(err)
 
   whitelist_respond robot, /start inst(:?ance)? [io]n ([a-z]+) ([a-z]+) with (.+)/i, start_instance_response()
 
@@ -112,7 +115,10 @@ module.exports = (robot) ->
     n = +msg.match[1]
     msg.match = msg.match[1..]
     for i in [1..n] by 1
-      start_instance_response()(robot, msg)
+      try
+        start_instance_response()(robot, msg)
+      catch err
+        robot.logger.error(err)
 
   whitelist_respond robot, /sum(:?marize)? inst(:?ances)?/i, (robot, msg) ->
     list_instances robot, host, '', '', default_role, token, send_instances_summary_cb(robot, msg)
