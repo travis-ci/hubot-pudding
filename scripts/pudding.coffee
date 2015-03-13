@@ -57,7 +57,7 @@ defaults =
       subnet_id: process.env.HUBOT_PUDDING_ORG_STAGING_DEFAULT_SUBNET_ID
       security_group_id: process.env.HUBOT_PUDDING_ORG_STAGING_DEFAULT_SECURITY_GROUP_ID
     prod:
-      instance_type: process.env.HUBOT_PUDDING_ORG_PROD_DEFAULT_INSTANCE_TYPE ||'c3.4xlarge'
+      instance_type: process.env.HUBOT_PUDDING_ORG_PROD_DEFAULT_INSTANCE_TYPE ||'c3.8xlarge'
       queue: 'docker'
       subnet_id: process.env.HUBOT_PUDDING_ORG_PROD_DEFAULT_SUBNET_ID
       security_group_id: process.env.HUBOT_PUDDING_ORG_PROD_DEFAULT_SECURITY_GROUP_ID
@@ -68,7 +68,7 @@ defaults =
       subnet_id: process.env.HUBOT_PUDDING_COM_STAGING_DEFAULT_SUBNET_ID
       security_group_id: process.env.HUBOT_PUDDING_COM_STAGING_DEFAULT_SECURITY_GROUP_ID
     prod:
-      instance_type: process.env.HUBOT_PUDDING_COM_PROD_DEFAULT_INSTANCE_TYPE ||'c3.4xlarge'
+      instance_type: process.env.HUBOT_PUDDING_COM_PROD_DEFAULT_INSTANCE_TYPE ||'c3.8xlarge'
       queue: 'docker'
       subnet_id: process.env.HUBOT_PUDDING_COM_PROD_DEFAULT_SUBNET_ID
       security_group_id: process.env.HUBOT_PUDDING_COM_PROD_DEFAULT_SECURITY_GROUP_ID
